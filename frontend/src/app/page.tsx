@@ -1,101 +1,184 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
+import {
+  useGetCommitmentsQuery,
+  useGetInvestorsQuery,
+} from '@/app/store/api/investorApi';
+import { Commitment, Investor } from '@/app/store/types';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedInvestor, setSelectedInvestor] = useState<number | null>(null);
+  const [selectedAssetClass, setSelectedAssetClass] = useState<string | null>(
+    null,
+  );
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const { data: investors = [] } = useGetInvestorsQuery();
+  const { data: commitments = [] } = useGetCommitmentsQuery(selectedInvestor!, {
+    skip: !selectedInvestor,
+  });
+
+  // Default chart data: Show total commitments of all investors
+  const defaultChartData = investors.map((investor) => ({
+    asset_class: investor.name, // Use investor name as X-axis label
+    amount: investor.total_commitment, // Use total commitment as Y-axis value
+  }));
+
+  // Filter commitments by asset class when an investor is selected
+  const filteredCommitments = selectedAssetClass
+    ? commitments.filter(
+        (commitment: Commitment) =>
+          commitment.asset_class === selectedAssetClass,
+      )
+    : commitments;
+
+  // Group commitments by asset class for the grouped chart
+  const groupedCommitments = commitments.reduce((acc, curr) => {
+    const { asset_class, amount } = curr;
+    acc[asset_class] = (acc[asset_class] || 0) + amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const groupedData = Object.entries(groupedCommitments).map(
+    ([key, value]) => ({
+      asset_class: key,
+      amount: value,
+    }),
+  );
+
+  return (
+    <div className='container mx-auto p-6'>
+      <h1 className='text-2xl font-bold mb-4'>Investor Commitments</h1>
+
+      {/* Investor Selector */}
+      <Select
+        onValueChange={(value: string) => {
+          setSelectedInvestor(value === 'all' ? null : Number(value));
+          setSelectedAssetClass(null); // Reset asset class filter when changing investor
+        }}
+      >
+        <SelectTrigger className='w-full'>
+          <SelectValue placeholder='Select an investor' />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value='all'>All Investors</SelectItem>
+          {investors.map((investor: Investor) => (
+            <SelectItem key={investor.id} value={String(investor.id)}>
+              {investor.name} (£{investor.total_commitment.toLocaleString()})
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Asset Class Selector */}
+      {selectedInvestor && commitments.length > 0 && (
+        <div className='mt-4'>
+          <Select
+            onValueChange={(value: string) =>
+              setSelectedAssetClass(value === 'all' ? null : value)
+            }
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <SelectTrigger className='w-full'>
+              <SelectValue placeholder='Filter by asset class' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All Classes</SelectItem>
+              {Array.from(new Set(commitments.map((c) => c.asset_class))).map(
+                (assetClass) => (
+                  <SelectItem key={assetClass} value={assetClass}>
+                    {assetClass}
+                  </SelectItem>
+                ),
+              )}
+            </SelectContent>
+          </Select>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
+
+      {/* Default Commitments Chart for All Investors */}
+      {!selectedInvestor && (
+        <Card className='mt-6'>
+          <CardContent>
+            <h2 className='text-xl font-semibold mb-4'>
+              Total Commitments by Investor
+            </h2>
+            <ResponsiveContainer width='100%' height={300}>
+              <BarChart data={defaultChartData}>
+                <XAxis dataKey='asset_class' />
+                <YAxis
+                  width={90} // Ensure space for Y-axis labels
+                  tickFormatter={(value) => value.toLocaleString()}
+                />
+                <Tooltip />
+                <Bar dataKey='amount' fill='#8884d8' />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Commitments Breakdown Bar Chart */}
+      {selectedInvestor && filteredCommitments.length > 0 && (
+        <Card className='mt-6'>
+          <CardContent>
+            <h2 className='text-xl font-semibold mb-4'>
+              {selectedAssetClass
+                ? `Commitments Breakdown (${selectedAssetClass})`
+                : 'Commitments Breakdown'}
+            </h2>
+            <ResponsiveContainer width='100%' height={300}>
+              <BarChart data={filteredCommitments}>
+                <XAxis dataKey='asset_class' />
+                <YAxis
+                  width={90} // Ensure space for Y-axis labels
+                  tickFormatter={(value) => value.toLocaleString()}
+                />
+                <Tooltip />
+                <Bar dataKey='amount' fill='#8884d8' />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Commitments Grouped by Asset Class */}
+      {selectedInvestor && groupedData.length > 0 && (
+        <Card className='mt-6'>
+          <CardContent>
+            <h2 className='text-xl font-semibold mb-4'>
+              Commitments Grouped by Asset Class
+            </h2>
+            <ResponsiveContainer width='100%' height={300}>
+              <BarChart data={groupedData}>
+                <XAxis dataKey='asset_class' />
+                <YAxis
+                  width={90} // Ensure space for Y-axis labels
+                  tickFormatter={(value) => value.toLocaleString()}
+                />
+                <Tooltip />
+                <Bar dataKey='amount' fill='#82ca9d' />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
