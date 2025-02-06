@@ -1,15 +1,55 @@
-# Ignore Python cache files
+# General Ignored Files
+.DS_Store
+Thumbs.db
+
+# Python Cache
 __pycache__/
 *.pyc
 *.pyo
 
-# Ignore virtual environments
+# Virtual Environments
 venv/
 ENV/
+.venv/
 
-# Ignore database files if not needed
+# Database Files
 *.db
 
-# Ignore IDE-specific files
+# FastAPI Environment Files
+.env
+*.env.*
+
+# Node.js (Frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js (Frontend)
+.next/
+out/
+*.next.cache/
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+*.lcov
+
+# IDE-specific Files
 .vscode/
 .idea/
+*.swp
+
+# Docker
+docker-compose.override.yml
+*.pid
+*.sock
+
+# Ignore build files for Docker
+docker-compose.override.yml
+docker-compose.override.yaml
+build/
+temp/

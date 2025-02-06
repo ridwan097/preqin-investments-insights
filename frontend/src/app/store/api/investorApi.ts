@@ -3,7 +3,7 @@ import { Investor, Commitment } from '@/app/store/types';
 
 export const investorApi = createApi({
   reducerPath: 'investorApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000' }),
+  baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL }),
   endpoints: (builder) => ({
     getInvestors: builder.query<Investor[], void>({
       query: () => '/investors',

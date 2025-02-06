@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./backend/db:/app/db
+    environment:
+      - DATABASE_URL=sqlite:///app/db/investor_commitments.db
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - '3000:3000'
+    stdin_open: true
+    tty: true
+    command: npm run dev
+    volumes:
+      - ./frontend:/app
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000

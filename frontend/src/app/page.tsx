@@ -35,13 +35,11 @@ export default function Home() {
     skip: !selectedInvestor,
   });
 
-  // Default chart data: Show total commitments of all investors
   const defaultChartData = investors.map((investor) => ({
-    asset_class: investor.name, // Use investor name as X-axis label
-    amount: investor.total_commitment, // Use total commitment as Y-axis value
+    asset_class: investor.name, //
+    amount: investor.total_commitment,
   }));
 
-  // Filter commitments by asset class when an investor is selected
   const filteredCommitments = selectedAssetClass
     ? commitments.filter(
         (commitment: Commitment) =>
@@ -49,7 +47,6 @@ export default function Home() {
       )
     : commitments;
 
-  // Group commitments by asset class for the grouped chart
   const groupedCommitments = commitments.reduce((acc, curr) => {
     const { asset_class, amount } = curr;
     acc[asset_class] = (acc[asset_class] || 0) + amount;
@@ -68,10 +65,11 @@ export default function Home() {
       <h1 className='text-2xl font-bold mb-4'>Investor Commitments</h1>
 
       {/* Investor Selector */}
+      <h3>Select Asset Class:</h3>
       <Select
         onValueChange={(value: string) => {
           setSelectedInvestor(value === 'all' ? null : Number(value));
-          setSelectedAssetClass(null); // Reset asset class filter when changing investor
+          setSelectedAssetClass(null);
         }}
       >
         <SelectTrigger className='w-full'>
@@ -90,6 +88,7 @@ export default function Home() {
       {/* Asset Class Selector */}
       {selectedInvestor && commitments.length > 0 && (
         <div className='mt-4'>
+          <h3>Select Asset Class:</h3>
           <Select
             onValueChange={(value: string) =>
               setSelectedAssetClass(value === 'all' ? null : value)

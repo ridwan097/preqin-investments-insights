@@ -24,7 +24,7 @@ Ensure you have the following installed:
 
 ```sh
 git clone https://github.com/ridwan097/preqin-investments-insights.git
-cd preqin-fullstack-interview-task
+cd preqin-fullstack-interview-task/backend
 ```
 
 #### **Step 2: Build and Run the Docker Container**
