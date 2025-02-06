@@ -11,7 +11,7 @@ cd preqin-investments-insights
 
 ### **2. Set Up Environment Variables**
 
-Copy the `.env.example` file or Create a `.env.local` or file in the `frontend` directory and add the following:
+Copy the `.env.example` file in the `frontend` directory and name it `.env.local` or Create a `.env.local` file in the `frontend` directory and add the following:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
