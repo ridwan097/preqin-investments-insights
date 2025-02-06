@@ -33,3 +33,10 @@ Replace `http://localhost:8000` with the actual backend API URL if different or 
    - **Backend (FastAPI)**: [http://localhost:8000](http://localhost:8000)
    - **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
    - **Frontend (Next.js)**: [http://localhost:3000](http://localhost:3000)
+
+## Prerequisites
+
+Ensure you have one of the following installed:
+
+- [OrbStack](https://orbstack.dev/) (Recommended for macOS users)
+- [Docker](https://www.docker.com/) (Available on all platforms)
