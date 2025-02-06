@@ -1,11 +1,3 @@
-# Preqin Full-Stack Interview Task
-
-This is a full-stack application built for the Preqin technical interview task. The project consists of a **FastAPI** backend and a **Next.js** frontend, working together to display investor commitments and their breakdown.
-
----
-
-## Features
-
 ## Getting Started
 
 ### **1. Clone the Repository**
